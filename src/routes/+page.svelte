@@ -1,9 +1,16 @@
 <script lang="ts">
-	let generating = $state(false);
-	let images = $state([]);
+	import { Button } from '$lib/components/ui/button';
 
-	const generate = async() => {
-	  generating = true
+	type Image = {
+		url: string;
+		revised_prompt: string;
+	};
+
+	let generating = $state(false);
+	let images = $state<Array<Image>>([]);
+
+	const generate = async () => {
+		generating = true;
 
 		const res = await fetch('/api/generate', {
 			method: 'POST',
@@ -14,21 +21,22 @@
 		});
 
 		generating = false;
-		images = [...images, res.json()];
-	}
+		images = [...images, await res.json()];
+	};
 </script>
 
-<h1>Generate Icon</h1>
-<button disabled={generating} on:click={generate}>
-	{#if generating}
-		Generating...
-	{:else}
-		Generate Icon
-	{/if}
-</button>
+<div class="container flex flex-col gap-4 p-4">
+	<Button disabled={generating} onclick={generate}>
+		{#if generating}
+			Generating...
+		{:else}
+			Generate Icon
+		{/if}
+	</Button>
 
-<div>
-{#each images as image}
-	<img src={image.url} alt={image.revised_prompt} />
-{/each}
+	<div>
+		{#each images as image}
+			<img src={image.url} alt={image.revised_prompt} />
+		{/each}
+	</div>
 </div>
